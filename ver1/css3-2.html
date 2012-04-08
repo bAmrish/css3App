@@ -1,0 +1,246 @@
+<!Doctype>
+<html>
+    <head>
+        <title>Tranforms</title>
+        <style type="text/css">
+            body{
+                
+                font-family: consolas, monospace, serif;
+                font-size: 14px;    
+            }
+
+            #container{
+                width: 600px;
+                height:600px;
+                margin: auto;
+                border: 1px solid #000;
+                background-color: #a001e9;
+                -webkit-perspective: 800;
+				position:relative;
+            }
+
+            #circle{
+                margin: 50px;
+                width: 500px;
+                height: 500px;
+                border: 3px solid #000;
+                border-radius: 500px;
+                background-color: #01da44;
+                opacity: 0.9;
+				position:relative;          
+                -webkit-transform-style: preserve-3d;
+				/*-webkit-transition: all 3s ease-in-out;*/
+				/*-webkit-animation: spin 10s infinite linear;*/
+            }
+
+            #leaf{
+                margin: 150px;
+                width: 200px;
+                height: 200px;
+                border: 3px solid #fff;
+                border-radius: 50px 100px;
+                background-color: #000;
+                color:#fff;
+                position:relative;          
+                /*-webkit-transform: rotateY(30deg) translateZ(100px);*/
+
+            }
+
+            #message{
+                position: relative;
+                top: 90px;
+                left: 20px;
+            }
+
+            body{
+                position: relative;                
+            }
+
+            #controls{
+                position: absolute;
+                bottom: 0px;
+                left:0px;
+                min-width: 30px;
+                min-height: 30px;
+                border: 2px solid #fff;
+                border-radius: 5px;
+                background-color: #333;
+                padding: 10px;
+            }
+
+            input[type=range].slider{
+                -webkit-appearance:none !important;  
+                background-color: #333;
+                color: #eee;
+                border: 1px solid #eee;
+                height: 2px;
+            }
+            
+            input[type="range"]::-webkit-slider-thumb{
+                -webkit-appearance:none !important;  
+                background-color: #eee;
+                height: 10px;
+                width: 10px;
+                border: 1px solid #000;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+            }
+
+            input[type=text][readonly].text{
+                width: 50px;
+            }
+
+            label.label{
+                color: #eee;
+            }
+
+            .selected{
+                border: 3px solid orange !important;
+            }
+
+
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="circle" class="selectable selected">
+                <div id="leaf" class="selectable">
+                    <div id="message">Click on me to select me!</div> 
+                </div>
+            </div>
+        </div>
+        <div id="controls">
+            <div id="y-rotation-holder" class="rotation-holder">
+                <label for="y-rotartion-slider" class="label">Y - axis</label>
+                <input id="y-rotation-slider"   class="slider" type="range" axis=y min=0 max=360 value=30>
+                <input id="y-rotation-value"    class="text" type="text" axis=y readonly />
+            </div>                
+            <div id="x-rotation-holder" class="rotation-holder">
+                <label for="x-rotartion-slider" class="label">X - axis</label>
+                <input id="x-rotation-slider"   class="slider" type="range" axis=x min=0 max=360 value=30>
+                <input id="x-rotation-value"    class="text" type="text" axis=x readonly />
+            </div>
+            <div id="z-rotation-holder" class="rotation-holder">
+                <label for="z-rotartion-slider" class="label">Z - axis</label>
+                <input id="z-rotation-slider"   class="slider" type="range" axis=z min=0 max=360 value=30>
+                <input id="z-rotation-value"    class="text" type="text" axis=z readonly />
+            </div>                
+        </div>
+
+        <script type='text/javascript'>
+            var selectedElement,
+                selectables = document.querySelectorAll(".selectable"),
+                
+            rotate = function(axis){
+                var slider = document.getElementById(axis + '-rotation-slider');
+                var input = document.getElementById(axis + '-rotation-value');
+                input.value = slider.value;
+                selectedElement.style.webkitTransform = removeRotation(selectedElement, axis) 
+                            + 'rotate' + axis.toUpperCase() + '(' + slider.value + 'deg)';
+            },
+
+            removeRotation = function(element, axis){
+
+                var transformString = element.style.webkitTransform,
+                    transforms = transformString.split(" "), 
+                    i = 0, 
+                    l = transforms.length, 
+                    transforms;
+
+                if(!transformString){
+                    return "";
+                }
+                if(l > 1){
+                    for(; i < l; i++){
+                        transform = transforms[i];
+                        if(transform.indexOf("rotate" + axis.toUpperCase()) != -1)  {
+                            transforms.splice(i, 1);
+                            return transforms.join(" ");
+                        }                        
+                    }
+
+                    return transformString;
+                }else{
+                    transform = transforms[0];
+                    if(transform.indexOf("rotate" + axis.toUpperCase()) != -1){
+                        return "";
+                    }else{
+                        return transformString
+                    }
+
+                }
+            },
+
+            removeClass = function(element, clazz){
+                var classString = element.getAttribute('class'), 
+                    classes, i, l;
+                    if(!classString){
+                        return;
+                    }
+
+                    var classes = classString.split(" ");
+                    i = 0; l = classes.length;
+
+                    for(; i < l; i++){
+                        if(classes[i] === clazz){
+                            classes.splice(i, 1);
+                            classString = classes.join(" ");
+                            element.setAttribute('class', classString);
+                        }
+                    }
+
+            },
+
+            addClass = function(element, clazz){
+                var classString = element.getAttribute('class') || ' ';
+                classString += " " + clazz;
+                element.setAttribute('class', classString);
+            },
+
+            sliders = document.querySelectorAll('input[type=range][axis]'), 
+
+            l = sliders.length, i = 0, slider, selectable;
+
+            /**
+                ---------------------------------------------------------------------------
+            **/
+            for(; i< l; i++){
+                slider = sliders[i];
+                slider.addEventListener('change', function(event){
+                    axis = this.getAttribute('axis');
+                    rotate(axis);
+                }, false);
+            }
+
+            i = 0; l = selectables.length;
+
+            for(; i < l; i++){
+                selectable = selectables[i];
+                selectable.addEventListener('click', function(event){
+                    event.stopPropagation();
+                    event.preventDefault();
+                    var currentSelection = document.querySelector('.selected');
+                    
+                    if(currentSelection){
+                        removeClass(currentSelection, 'selected');
+                    }
+                    selectedElement = this;
+                    addClass(this, 'selected');
+
+                }, false);
+            }
+
+            selectedElement = document.querySelector('.selected');
+
+            rotate('x');
+            rotate('z');
+            rotate('y');
+
+            
+
+
+
+         </script>
+
+    </body>
+</html>

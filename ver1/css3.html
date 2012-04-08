@@ -1,0 +1,90 @@
+<!Doctype>
+<html>
+    <head>
+        <title>Tranforms</title>
+        <style type="text/css">
+            #container{
+                width: 600px;
+                height:600px;
+                margin: auto;
+                border: 1px solid #000;
+                background-color: #a001e9;
+                -webkit-perspective: 800;
+				position:relative;
+            }
+
+            #box{
+                margin: 50px;
+                width: 500px;
+                height: 500px;
+                border: 3px solid #000;
+                border-radius: 500px;
+                background-color: #01da44;
+                opacity: 0.9;
+				position:relative;          
+                -webkit-transform-style: preserve-3d;
+				-webkit-transition: all 3s ease-in-out;
+				-webkit-animation: spin 10s infinite linear;
+            }
+
+            #leaf{
+                margin: 150px;
+                width: 200px;
+                height: 200px;
+                border: 3px solid #000;
+                border-radius: 50px 100px;
+                background-color: #000;
+                color:#fff;
+                position:relative;          
+                -webkit-transform: rotateY(30deg) translateZ(100px);
+
+            }
+
+            #message{
+                position: relative;
+                top: 90px;
+                left: 20px;
+            }
+
+            .rotate180 {
+                -webkit-transform: rotateY(180deg);
+				left: -500px;
+            }
+
+            .rotate360 {
+				-webkit-transform: rotateY(360deg);
+            }
+
+            @-webkit-keyframes spin {
+            	from {-webkit-transform: rotateY(0deg);}
+            	to {-webkit-transform: rotateY(360deg);}
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="box">
+                <div id="leaf">
+                    <div id="message">Click on me to move me!</div> 
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+        	
+        	if(document.addEventListener){
+        		box.addEventListener("click", function(event){
+                    var box = document.getElementById("box");
+        				clazz = box.getAttribute("class");
+						
+					if(!clazz || clazz === 'rotate360'){
+        				box.setAttribute("class", "rotate180");
+					}else{
+						box.setAttribute("class", "rotate360");
+					}
+        		}, false)
+        	}
+        </script>
+
+    </body>
+</html>
